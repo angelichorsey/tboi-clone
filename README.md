@@ -1,5 +1,5 @@
 # tboi-clone
-A silly project to encourage playing around in Python.
+Minimal copy of The Binding of Isaac. Copying something is a great way to learn.
 
 ## How to run
 ```shell
