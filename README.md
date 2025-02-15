@@ -2,6 +2,15 @@
 This is a project to encourage learning programming with Python by attempting to copy the functionality of The Binding of Isaac.
 
 Pygame documentation: https://www.pygame.org/docs/
+Alternate documentation that isn't high contrast: https://devdocs.io/pygame/
+
+## Pygame Examples
+This library has a lot of great examples to pull ideas from: https://github.com/pygame/pygame/tree/main/examples
+
+To run the `chimp.py` file:
+```shell
+python -m pygame.examples.chimp
+```
 
 ## Prerequisites
 * Python ~> 3.10
