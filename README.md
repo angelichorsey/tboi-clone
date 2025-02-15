@@ -1,32 +1,63 @@
 # tboi-clone
-Minimal copy of The Binding of Isaac. Copying something is a great way to learn.
-
-Developed and tested using Python 3.10.2.
+This is a project to encourage learning programming with Python by attempting to copy the functionality of The Binding of Isaac.
 
 Pygame documentation: https://www.pygame.org/docs/
 
-## How to run
+## Prerequisites
+* Python ~> 3.10
+
+## Running the Game
+Clone this repository (or download the zip):
 ```shell
 git clone https://github.com/angelichorsey/tboi-clone.git
 cd tboi-clone/
-python -m venv venv
-./venv/bin/Activate.ps1
-python -m pip install -r requirements.txt
-python main.py
 ```
 
-## Improvements
-In no specific order of difficulty
+Setup your virtual environment and install modules:
+```shell
+python -m venv venv
+.\venv\scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
 
-* alternating bullet starting position (like tears alternating from Isaac's eyes)
-* UI and HUD
-* music and sound effects
-* sprites instead of shapes
-* bullet range / travel distance
-* curving bullets
-* knockback from bullets
-* enemies that can fire bullets
-* multiple enemies
-* collision detection between player and enemy, reducing player health
-* obstacles and collision detection between them and player, enemy
-* enemy pathing around obstacles
+Run the game:
+```shell
+python run.py
+```
+
+<details>
+  <summary>
+  All commands if you want to just copy and paste all at once.
+  </summary>
+
+  ```shell
+  git clone https://github.com/angelichorsey/tboi-clone.git
+  cd tboi-clone/
+  python -m venv venv
+  .\venv\scripts\Activate.ps1
+  python -m pip install -r requirements.txt
+  python run.py
+  ```
+</details>
+
+## Developing
+There are no specific processes/policies for how to contribute. However, this is a learning project so this section contains references for programming newcomers.
+
+At a minimum, you will need to install Python. It's also incredibly helpful to have an IDE (integrated development environment) with features that make writing Python easier. I have a detailed guide covering this:
+
+[Setup Development Environment](https://github.com/angelichorsey/tips-n-tricks/tree/master/setup)
+
+## Contributing
+Playing around with the project doesn't require Git, but it is needed to actually push any changes back to this repo. It's not included yet in the guide above. After following that guide you should have Chocolatey installed which makes adding Git easy.
+
+Open your terminal as administrator and run:
+```shell
+choco install git -y
+```
+
+Then all you need to do is normal Git operations like add, commit, and push. I'll make a separate page for that in my `tips-n-tricks` repo at some point.
+
+## TODO Game Features
+I've written out some of the many possible features a clone of Isaac should implement. They have estimated programming difficuly and a short specification of how to implement.
+
+[Features to Implement](TODO.md)
