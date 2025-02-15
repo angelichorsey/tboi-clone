@@ -1,4 +1,4 @@
-import pygame
+import pygame as pg
 
 class Enemy:
     def __init__(self, pos, speed=2, color=(0, 255, 0), size=20, health=3):
@@ -40,10 +40,10 @@ class Enemy:
         Draw the enemy as an upwards-pointing triangle on the provided surface.
 
         Parameters:
-            surface (pygame.Surface): The surface to draw the enemy on.
+            surface (pg.Surface): The surface to draw the enemy on.
         """
 
         x, y = self.pos
         half_size = self.size / 2
         points = [(x, y - self.size), (x - half_size, y + half_size), (x + half_size, y + half_size)]
-        pygame.draw.polygon(surface, self.color, points)
+        pg.draw.polygon(surface, self.color, points)

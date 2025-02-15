@@ -1,4 +1,4 @@
-import pygame
+import pygame as pg
 
 class Bullet:
     def __init__(self, pos, direction, speed=10, radius=5, color=(255, 0, 0), damage=1):
@@ -37,4 +37,5 @@ class Bullet:
             surface (pygame.Surface): The surface to draw the bullet on.
         """
         
-        pygame.draw.circle(surface, self.color, (int(self.pos[0]), int(self.pos[1])), self.radius)
+        pg.draw.circle(surface, self.color, (int(self.pos[0]), int(self.pos[1])), self.radius)
+        
