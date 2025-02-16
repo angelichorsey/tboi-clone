@@ -1,12 +1,15 @@
 import pygame as pg
+from mixins import BoundAwareSprite
 
-class Bullet:
-    def __init__(self, pos, direction, speed=10, radius=5, color=(255, 0, 0), damage=1):
+class Bullet(BoundAwareSprite):
+    def __init__(self, pos, direction, *groups, speed=10, radius=5, color=(255, 0, 0), damage=1):
+        super().__init__(*groups)
         """
         Initialize a new Bullet instance.
 
         Parameters:
             pos (tuple): The starting (x, y) position of the bullet.
+            groups (pg.sprite.Group): any sprite groups this should be added to.
             direction (tuple): The normalized (x, y) direction vector for bullet travel.
             speed (int, optional): The speed of the bullet.
             radius (int, optional): The radius of the bullet.
@@ -21,6 +24,10 @@ class Bullet:
         self.damage = damage
         self.velocity = [direction[0] * speed, direction[1] * speed]
 
+        self.image = pg.Surface((self.radius * 2, self.radius * 2), pg.SRCALPHA)
+        pg.draw.circle(self.image, self.color, (self.radius, self.radius), self.radius)
+        self.rect = self.image.get_rect(center=pos)
+
     def update(self):
         """
         Update the bullets position.
@@ -29,13 +36,11 @@ class Bullet:
         self.pos[0] += self.velocity[0]
         self.pos[1] += self.velocity[1]
 
-    def draw(self, surface):
-        """
-        Draw the bullet as a circle on the provided surface.
+        self.rect.center = self.pos
 
-        Parameters:
-            surface (pygame.Surface): The surface to draw the bullet on.
-        """
-        
-        pg.draw.circle(surface, self.color, (int(self.pos[0]), int(self.pos[1])), self.radius)
-        
+        # inherited from BoundAwareSprite
+        self.check_bounds()
+
+    def handle_out_of_bounds(self):
+        # remove from all sprite groups
+        self.kill()

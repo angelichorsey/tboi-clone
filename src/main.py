@@ -1,38 +1,39 @@
-import pygame as pg
+import random
 import sys
+import pygame as pg
+from mixins import BoundAwareSprite
 from player import Player
 from enemy import Enemy
-import random
-# while this is no different than leaving all code outside of the function
-# and running the file, putting it in a function now will be more extensible
-# for future development
-def main():
-    # initialize all imported pg modules
-    pg.init()
-    # screen dimensions
-    width, height = 800, 600
-    # initialize a window or screen for display
-    screen = pg.display.set_mode((width, height))
-    # window title
-    pg.display.set_caption("TBOI Clone")
 
+def main():
+    pg.init()
+
+    # Setting up game window
+    width, height = 800, 600
+    screen = pg.display.set_mode((width, height))
+    pg.display.set_caption("Not TBOI Clone")
+    
+    # set game window as the Rect to use for bounds
+    BoundAwareSprite.SCREEN_RECT = screen.get_rect()
+
+    # create clock
     clock = pg.time.Clock()
 
-    # initialize player and enemy
-    player = Player((width // 2, height // 2))
-    enemies = []
-    spawns = [
-        (100, -100), (50, 50), (75, -25)
-    ]
-    # initialize bullets as empty list
-    bullets = []
-    allsprites = pg.sprite.RenderPlain((player))
+    # init sprite groups
+    all_sprites = pg.sprite.RenderPlain()
+    enemies = pg.sprite.Group()
+    bullets = pg.sprite.Group()
 
+    # init player
+    player = Player((width // 2, height // 2), all_sprites)
+    
+    # loop that runs the game
     running = True
-    # game loop
     while running:
-        # update the clock; 60 fps
+        # update the clock (60 fps) and set current time
         clock.tick(60)
+        current_time = pg.time.get_ticks()
+
         # check all events and stop the game loop if the window is closed
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -42,88 +43,48 @@ def main():
         keys = pg.key.get_pressed()
         # move player based on WASD
         player.move(keys)
-        # keep player in bounds
-        player.update((width, height))
+        player.update()
 
-        # check if enemy still exists and update it's position based on player position
-        if enemies:
-            for enemy in enemies:
-                enemy.update(player.pos)
-        if len(enemies) <= 4:
-            playerx = int(player.pos[0])
-            playery = int(player.pos[1])
-            xrange = list(range(0, playerx - 50)) + list(range(playerx + 50, width))
-            yrange = list(range(0, playery - 50)) + list(range(playery + 50, height))
-            enemy = Enemy((random.choice(xrange), random.choice(yrange)))
-            enemies.append(enemy)
+        # update all enemies (does nothing if enemies is empty)
+        enemies.update(player.pos)
 
-    
-        # get current time
-        current_time = pg.time.get_ticks()
+        if len(enemies) < 4:
+            spawn_point = Enemy.get_valid_spawn(player.pos, 50, width, height)
+            enemy = Enemy(spawn_point, all_sprites, enemies)
 
-        # initialize a bullet instance if arrow key is pressed, otherwise return None
+        # init a bullet instance if arrow key is pressed, otherwise return None
         bullet = player.shoot(keys, current_time)
-        # if a bullet was initialized, add it to the list of bullets on screen
+        # if a bullet was initd, add it to the list of bullets on screen
         if bullet:
-            bullets.append(bullet)
+            bullet.add(all_sprites, bullets)
 
         # update the position of each bullet on the screen
-        for bullet in bullets:
-            bullet.update()
-        # remove any bullets that reach the edge of the screen
-        bullets = [b for b in bullets if 0 <= b.pos[0] <= width and 0 <= b.pos[1] <= height]
+        bullets.update()
 
-        # collision detection between bullets and enemy
-        if enemies:
-            for enemy in enemies: 
-                dx = player.pos[0] - enemy.pos[0]
-                dy = player.pos[1] - enemy.pos[1]
-                distance = (dx**2 + dy**2) ** 0.5
-                # if the distance is small enough
-                if distance < player.radius + enemy.size / 2:
-                    player.hp -= 1
-        
+        # collision detection between bullets and enemies
+        # enemies can only lose health from bullet collision so killing logic is here, but may not in the future
+        enemy_bullet_collisions = pg.sprite.groupcollide(enemies, bullets, False, True, collided=pg.sprite.collide_circle)
+        for enemy, hits in enemy_bullet_collisions.items():
+            enemy.health -= len(hits)
+            if enemy.health <= 0:
+                enemy.kill()
 
-            # go through each bullet in a copy of the bullets list (bullets[:] instead of just bullets)
-            for bullet in bullets[:]:
-                hit = False
-                for enemy in enemies:
-                    # and calculate the distance between the bullet and the enemy
-                    dx = bullet.pos[0] - enemy.pos[0]
-                    dy = bullet.pos[1] - enemy.pos[1]
-                    distance = (dx**2 + dy**2) ** 0.5
-                    # if the distance is small enough
-                    if distance < bullet.radius + enemy.size / 2:
-                        # reduce enemy health and remove the bullet
-                        enemy.health -= bullet.damage
-                        hit = True
-                        # when health reaches 0, remove the enemy
-                        if enemy.health <= 0:
-                            player.fire_rate -= 10
-                            enemies.remove(enemy)
-                            break
-                if hit: 
-                    bullets.remove(bullet)
+        # player collision with enemies
+        player_enemies_collisions = pg.sprite.spritecollide(player, enemies, False, pg.sprite.collide_circle)
+        player.health -= len(player_enemies_collisions)
+        if player.health <= 0:
+            running = False
 
-        # fill Surface with a solid color
+        # fill Surface with a solid color then draw a rectangle the same size on top of it
         screen.fill((0, 0, 0))
-        # draws a rectangle of the room
         pg.draw.rect(screen, (50, 50, 50), (0, 0, width, height))
-        # draws the player
-        # player.draw(screen)
-        allsprites.draw(screen)
-        # if the enemy exists, draw it
-        if enemies:
-            for enemy in enemies:
-                enemy.draw(screen)
-        # draw each bullet in bullets
-        for bullet in bullets:
-            bullet.draw(screen)
+        
+        # draw all sprites
+        all_sprites.draw(screen)
+        
         # update the full display Surface to the screen
         pg.display.flip()
 
-        if player.hp == 0:
-            running = False
     # cleanup pg
     pg.quit()
     # exit script

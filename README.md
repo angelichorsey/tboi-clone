@@ -1,7 +1,7 @@
 # tboi-clone
-This is a project to encourage learning programming with Python by attempting to copy the functionality of The Binding of Isaac.
+This is a project to encourage learning programming with Python through game development. It's no loner an Isaac clone, but the name will stay until I fork it or something.
 
-Pygame documentation: https://www.pygame.org/docs/
+Pygame documentation: https://www.pygame.org/docs/  
 Alternate documentation that isn't high contrast: https://devdocs.io/pygame/
 
 ## Pygame Examples
