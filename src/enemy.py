@@ -1,12 +1,15 @@
+import random
 import pygame as pg
 
-class Enemy:
-    def __init__(self, pos, speed=2, color=(0, 255, 0), size=20, health=3):
+class Enemy(pg.sprite.Sprite):
+    def __init__(self, pos, *groups, speed=2, color=(0, 255, 0), size=20, health=3):
+        super().__init__(*groups)
         """
         Initialize a new Enemy instance.
 
         Parameters:
             pos (tuple): The initial (x, y) position of the enemy.
+            groups (pg.sprite.Group): any sprite groups this should be added to.
             speed (int): The movement speed of the enemy.
             color (tuple): The RGB color of the enemy.
             size (int): The size of the enemy's triangle.
@@ -18,6 +21,18 @@ class Enemy:
         self.color = color
         self.size = size
         self.health = health
+
+        self.radius = size // 2
+
+        self.image = pg.Surface((self.size, self.size), pg.SRCALPHA)
+        # vertices of downward-facing triangle
+        points = [
+            (0, 0), # top left
+            (self.size, 0), # top right
+            (self.size // 2, self.size) # bottom mid
+            ]
+        pg.draw.polygon(self.image, self.color, points)
+        self.rect = self.image.get_rect(center=pos)
 
     def update(self, target_pos):
         """
@@ -34,16 +49,15 @@ class Enemy:
             dx, dy = dx / distance, dy / distance
             self.pos[0] += dx * self.speed
             self.pos[1] += dy * self.speed
+        
+        self.rect.center = self.pos
 
-    def draw(self, surface):
-        """
-        Draw the enemy as an upwards-pointing triangle on the provided surface.
-
-        Parameters:
-            surface (pg.Surface): The surface to draw the enemy on.
-        """
-
-        x, y = self.pos
-        half_size = self.size / 2
-        points = [(x, y - self.size), (x - half_size, y + half_size), (x + half_size, y + half_size)]
-        pg.draw.polygon(surface, self.color, points)
+    @staticmethod
+    def get_valid_spawn(target_pos, safe_radius, width, height):
+        while True:
+            x = random.randint(0, width)
+            y = random.randint(0, height)
+            dx = x - target_pos[0]
+            dy = y - target_pos[1]
+            if dx * dx + dy * dy >= safe_radius * safe_radius:
+                return (x, y)

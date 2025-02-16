@@ -1,14 +1,16 @@
 import pygame as pg
 from bullet import Bullet
+from mixins import BoundAwareSprite
 
-class Player(pg.sprite.Sprite):
-    def __init__(self, pos, radius=20, speed=8, color=(255, 12, 255), fire_rate=500, health=3):
-        pg.sprite.Sprite.__init__(self)
+class Player(BoundAwareSprite):
+    def __init__(self, pos, *groups, radius=20, speed=8, color=(255, 12, 255), fire_rate=500, health=3):
+        super().__init__(*groups)
         """
         Initialize a new Player instance.
 
         Parameters:
             pos (tuple): The initial (x, y) position of the player.
+            groups (pg.sprite.Group): any sprite groups this should be added to.
             radius (int): The radius of the player's circle.
             speed (int): The movement speed of the player.
             color (tuple): The RGB color of the player.
@@ -20,10 +22,12 @@ class Player(pg.sprite.Sprite):
         self.color = color
         self.fire_rate = fire_rate # milliseconds
         self.last_shot_time = 0
-        self.hp = health
-        self.image = pg.Surface([self.radius * 2, self.radius * 2])
-        self.image.fill(color)
-        self.rect = self.image.get_rect()
+        self.health = health
+
+        self.image = pg.Surface((self.radius * 2, self.radius * 2), pg.SRCALPHA)
+        pg.draw.circle(self.image, self.color, (self.radius, self.radius), self.radius)
+        self.rect = self.image.get_rect(center=pos)
+
 
     def move(self, keys):
         """
@@ -53,18 +57,11 @@ class Player(pg.sprite.Sprite):
         self.pos[0] += dx * self.speed
         self.pos[1] += dy * self.speed
 
-    def update(self, bounds):
-        """
-        Clamp the player's position within the specified bounds.
-
-        Parameters:
-            bounds (tuple): The (width, height) limits for the player's movement.
-        """
-
-        self.pos[0] = max(self.radius, min(bounds[0] - self.radius, self.pos[0]))
-        self.pos[1] = max(self.radius, min(bounds[1] - self.radius, self.pos[1]))
-
+    def update(self):
+        """Clamp the player's position within SCREEN_RECT"""
         self.rect.center = self.pos
+        self.rect.clamp_ip(self.SCREEN_RECT)
+        self.pos = list(self.rect.center)
 
     def shoot(self, keys, current_time):
         """
